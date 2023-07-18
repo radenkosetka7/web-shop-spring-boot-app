@@ -16,7 +16,7 @@ public interface UserService {
 
     Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication);
 
-    Page<Product> getAllProductsForSeller(Pageable page,Boolean finished, Authentication authentication);
+    Page<Product> getAllProductsForSeller(Pageable page,Integer finished, Authentication authentication);
 
     User findById(Integer id);
 

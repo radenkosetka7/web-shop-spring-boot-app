@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<UserEntity,Integer> {
     Page<ProductEntity> getAllProductsForBuyer(Pageable page,Integer id);
 
     @Query("select p from ProductEntity p where p.userSeller.id=:id and p.finished=:finished")
-    Page<ProductEntity> getAllProductsForSeller(Pageable page,Integer id,Boolean finished);
+    Page<ProductEntity> getAllProductsForSeller(Pageable page,Integer id,Integer finished);
 
    boolean existsByMail(String mail);
 

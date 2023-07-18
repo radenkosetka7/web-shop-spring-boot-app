@@ -24,7 +24,7 @@
     },
     {
       "methods": ["GET"],
-      "pattern": "/users/*/products/*",
+      "pattern": "/users/products/*",
       "roles": [
         "CUSTOM_USER"
       ]

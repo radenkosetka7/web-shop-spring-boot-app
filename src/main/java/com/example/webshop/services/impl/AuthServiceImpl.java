@@ -10,6 +10,7 @@ import com.example.webshop.models.requests.LoginRequest;
 import com.example.webshop.repositories.UserRepository;
 import com.example.webshop.services.AuthService;
 import com.example.webshop.services.EmailService;
+import com.example.webshop.services.LoggerService;
 import com.example.webshop.util.LoggingUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final LoggerService loggerService;
 
     private Map<String,String> codes=new HashMap<>();
 
@@ -60,9 +62,11 @@ public class AuthServiceImpl implements AuthService {
                 JwtUser user = (JwtUser) authenticate.getPrincipal();
                 response = modelMapper.map(userEntity, LoginResponse.class);
                 response.setToken(generateJwt(user));
+                loggerService.saveLog("User " + user.getUsername() + " has logged in to the system",this.getClass().getName());
                 return response;
             }
             else {
+                loggerService.saveLog("Activation code has sent",this.getClass().getName());
                 sendActivationCode(userEntity.getUsername(),userEntity.getMail());
             }
         } catch (Exception ex) {

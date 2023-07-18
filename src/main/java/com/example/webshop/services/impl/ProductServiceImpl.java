@@ -9,11 +9,8 @@ import com.example.webshop.models.requests.AnswerRequest;
 import com.example.webshop.models.requests.CommentRequest;
 import com.example.webshop.models.requests.ProductRequest;
 import com.example.webshop.repositories.*;
+import com.example.webshop.services.LoggerService;
 import com.example.webshop.services.ProductService;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
-import com.example.webshop.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -22,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Date;
 
 @Service
@@ -34,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final CommentRepository commentRepository;
     private final ImageRepository imageRepository;
     private final AttributeValueRepository attributeValueRepository;
-    //private final Authentication authentication;
+    private final LoggerService loggerService;
     private final UserRepository userRepository;
 
 
@@ -65,6 +64,7 @@ public class ProductServiceImpl implements ProductService {
             attributeValueEntity.setId(attributeValueEntityPK);
             attributeValueRepository.saveAndFlush(attributeValueEntity);
         }
+        loggerService.saveLog("The new product has been added by user " + userEntity.getUsername(),this.getClass().getName());
         return modelMapper.map(productEntity,Product.class);
     }
 
@@ -86,6 +86,7 @@ public class ProductServiceImpl implements ProductService {
         commentEntity.setId(null);
         commentEntity.setDate(new Date());
         commentEntity.setUser(userEntity);
+        loggerService.saveLog("The user " + userEntity.getUsername() + " has given comment to product " + commentEntity.getProduct().getTitle(),this.getClass().getName());
         //iz principala uzeti usera
         commentEntity = commentRepository.saveAndFlush(commentEntity);
         entityManager.refresh(commentEntity);
@@ -97,6 +98,7 @@ public class ProductServiceImpl implements ProductService {
         CommentEntity commentEntity = commentRepository.findById(id).orElseThrow(NotFoundException::new);
         commentEntity.setAnswer(answerRequest.getAnswer());
         commentEntity = commentRepository.saveAndFlush(commentEntity);
+        loggerService.saveLog("Product owner answered on comment for product  " + commentEntity.getProduct().getTitle(),this.getClass().getName());
         entityManager.refresh(commentEntity);
         return modelMapper.map(commentEntity, Comment.class);
     }
@@ -107,6 +109,7 @@ public class ProductServiceImpl implements ProductService {
         UserEntity userEntity=userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
         productEntity.setUserSeller(userEntity);
+        loggerService.saveLog("The user " + userEntity.getUsername() + " has purchased prdouct " + productEntity.getTitle(),this.getClass().getName());
         //iz principala izvuci usera
         productEntity.setFinished(1);
         return modelMapper.map(productRepository.saveAndFlush(productEntity), Product.class);
@@ -116,6 +119,7 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Integer id) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
         productEntity.setFinished(2);
+        loggerService.saveLog("The user has deleted product" + productEntity.getTitle(),this.getClass().getName());
         productRepository.saveAndFlush(productEntity);
     }
 }

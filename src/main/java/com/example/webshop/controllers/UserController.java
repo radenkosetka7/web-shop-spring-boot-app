@@ -51,13 +51,13 @@ public class UserController {
         return userService.changePassword(id,changePasswordRequest);
     }
 
-    @GetMapping("/{id}/products/purchased")
+    @GetMapping("/products/purchased")
     public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication)
     {
         return userService.getAllProductsForBuyer(page,authentication);
     }
-    @GetMapping("/{id}/products/sold")
-    public Page<Product> getAllProductsForSeller(Pageable page,Boolean finished,Authentication authentication)
+    @GetMapping("/products/sold")
+    public Page<Product> getAllProductsForSeller(Pageable page,Integer finished,Authentication authentication)
     {
         return userService.getAllProductsForSeller(page,finished,authentication);
     }

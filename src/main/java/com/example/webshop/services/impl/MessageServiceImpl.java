@@ -8,6 +8,7 @@ import com.example.webshop.models.entities.UserEntity;
 import com.example.webshop.models.requests.MessageRequest;
 import com.example.webshop.repositories.MessageRepository;
 import com.example.webshop.repositories.UserRepository;
+import com.example.webshop.services.LoggerService;
 import com.example.webshop.services.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
+    private final LoggerService loggerService;
 
 
     @Override
@@ -33,6 +35,7 @@ public class MessageServiceImpl implements MessageService {
         MessageEntity messageEntity = modelMapper.map(messageRequest, MessageEntity.class);
         messageEntity.setId(null);
         messageEntity.setUser(userEntity);
+        loggerService.saveLog("User: " + user.getUsername() + " has sent message to customer support.",this.getClass().getName());
         //izvuci user principal
         return modelMapper.map(messageRepository.saveAndFlush(messageEntity), com.example.webshop.models.dto.Message.class);
     }

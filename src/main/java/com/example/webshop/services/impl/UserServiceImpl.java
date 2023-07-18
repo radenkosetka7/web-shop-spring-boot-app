@@ -14,6 +14,7 @@ import com.example.webshop.models.requests.SignUpRequest;
 import com.example.webshop.models.requests.UserRequest;
 import com.example.webshop.repositories.UserRepository;
 import com.example.webshop.services.AuthService;
+import com.example.webshop.services.LoggerService;
 import com.example.webshop.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final LoggerService loggerService;
 
 
     @Value("${authorization.default.username-admin:}")
@@ -93,12 +95,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
+        loggerService.saveLog("User: " + user.getUsername() + " has searched his purchased products.",this.getClass().getName());
         return userRepository.getAllProductsForBuyer(page,user.getId()).map(p->modelMapper.map(p,Product.class));
     }
 
     @Override
-    public Page<Product> getAllProductsForSeller(Pageable page,Boolean finished,Authentication authentication) {
+    public Page<Product> getAllProductsForSeller(Pageable page,Integer finished,Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
+        loggerService.saveLog("User: " + user.getUsername() + " has searched his sold products.",this.getClass().getName());
         return userRepository.getAllProductsForSeller(page,user.getId(),finished).map(p->modelMapper.map(p,Product.class));
     }
 
@@ -115,6 +119,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setUsername(userRequest.getSurname());
         userEntity.setCity(userRequest.getCity());
         userEntity.setMail(userRequest.getMail());
+        loggerService.saveLog("User: " + userEntity.getUsername() + " has updated profile.",this.getClass().getName());
         return modelMapper.map(userRepository.saveAndFlush(userEntity),User.class);
     }
 
@@ -125,6 +130,7 @@ public class UserServiceImpl implements UserService {
         passwordEncoder.matches(userEntity.getPassword(),changePasswordRequest.getOldPassword()))
         {
             userEntity.setPassword(passwordEncoder.encode(changePasswordRequest.getPassword()));
+            loggerService.saveLog("User: " + userEntity.getUsername() + " has changed password.",this.getClass().getName());
             return modelMapper.map(userRepository.saveAndFlush(userEntity),User.class);
         }
         else
@@ -147,6 +153,7 @@ public class UserServiceImpl implements UserService {
         entity.setStatus(UserEntity.Status.REQUESTED);
         entity.setRole(Role.CUSTOM_USER);
         entity=userRepository.saveAndFlush(entity);
+        loggerService.saveLog("New user: " + entity.getUsername() + " has registered.",this.getClass().getName());
         authService.sendActivationCode(entity.getUsername(),entity.getMail());
     }
 
@@ -154,6 +161,7 @@ public class UserServiceImpl implements UserService {
     public User activateAccount(String username) {
         UserEntity userEntity = userRepository.findByUsernameAndStatus(username, UserEntity.Status.REQUESTED).orElseThrow(NotFoundException::new);
         userEntity.setStatus(UserEntity.Status.ACTIVE);
+        loggerService.saveLog("User: " + userEntity.getUsername() + " has activated profile.",this.getClass().getName());
         return modelMapper.map(userRepository.saveAndFlush(userEntity),User.class);
     }
 }
