@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
 
         if (userRepository.count() == 0) {
             UserEntity userEntity = new UserEntity();
-            UserEntity userEntity1=new UserEntity();
+            UserEntity userEntity1 = new UserEntity();
             userEntity.setUsername(defaultUsernameAdmin);
             userEntity.setPassword(passwordEncoder.encode(defaultPasswordAdmin));
             userEntity.setMail(defaultEmailAdmin);
@@ -93,48 +93,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication) {
+    public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication, String title) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
-        loggerService.saveLog("User: " + user.getUsername() + " has searched his purchased products.",this.getClass().getName());
-        return userRepository.getAllProductsForBuyer(page,user.getId()).map(p->modelMapper.map(p,Product.class));
+        loggerService.saveLog("User: " + user.getUsername() + " has searched his purchased products.", this.getClass().getName());
+        if (title == null || title.isEmpty()) {
+            return userRepository.getAllProductsForBuyer(page, user.getId()).map(p -> modelMapper.map(p, Product.class));
+        } else {
+            return userRepository.getAllProductsForBuyerAndSearch(page, user.getId(), title).map(p -> modelMapper.map(p, Product.class));
+        }
     }
 
     @Override
-    public Page<Product> getAllProductsForSeller(Pageable page,Integer finished,Authentication authentication) {
+    public Page<Product> getAllProductsForSeller(Pageable page, Integer finished, Authentication authentication, String title) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
-        loggerService.saveLog("User: " + user.getUsername() + " has searched his sold products.",this.getClass().getName());
-        return userRepository.getAllProductsForSeller(page,user.getId(),finished).map(p->modelMapper.map(p,Product.class));
+        loggerService.saveLog("User: " + user.getUsername() + " has searched his sold products.", this.getClass().getName());
+        if (title == null || title.isEmpty()) {
+            return userRepository.getAllProductsForSeller(page, user.getId(), finished).map(p -> modelMapper.map(p, Product.class));
+        } else {
+            return userRepository.getAllProductsForSellerSearch(page, user.getId(),finished,title).map(p -> modelMapper.map(p, Product.class));
+
+        }
     }
 
     @Override
     public User findById(Integer id) {
-        return modelMapper.map(userRepository.findById(id).orElseThrow(NotFoundException::new),User.class);
+        return modelMapper.map(userRepository.findById(id).orElseThrow(NotFoundException::new), User.class);
     }
 
     @Override
     public User update(Integer id, UserRequest userRequest) {
-        UserEntity userEntity=userRepository.findById(id).orElseThrow(NotFoundException::new);
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(NotFoundException::new);
         userEntity.setAvatar(userRequest.getAvatar());
         userEntity.setName(userRequest.getName());
         userEntity.setUsername(userRequest.getSurname());
         userEntity.setCity(userRequest.getCity());
         userEntity.setMail(userRequest.getMail());
-        loggerService.saveLog("User: " + userEntity.getUsername() + " has updated profile.",this.getClass().getName());
-        return modelMapper.map(userRepository.saveAndFlush(userEntity),User.class);
+        loggerService.saveLog("User: " + userEntity.getUsername() + " has updated profile.", this.getClass().getName());
+        return modelMapper.map(userRepository.saveAndFlush(userEntity), User.class);
     }
 
     @Override
     public User changePassword(Integer id, ChangePasswordRequest changePasswordRequest) {
-        UserEntity userEntity=userRepository.findById(id).orElseThrow(NotFoundException::new);
-        if(changePasswordRequest.getPassword() == changePasswordRequest.getNewPassword() &&
-        passwordEncoder.matches(userEntity.getPassword(),changePasswordRequest.getOldPassword()))
-        {
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(NotFoundException::new);
+        if (changePasswordRequest.getPassword() == changePasswordRequest.getNewPassword() &&
+                passwordEncoder.matches(userEntity.getPassword(), changePasswordRequest.getOldPassword())) {
             userEntity.setPassword(passwordEncoder.encode(changePasswordRequest.getPassword()));
-            loggerService.saveLog("User: " + userEntity.getUsername() + " has changed password.",this.getClass().getName());
-            return modelMapper.map(userRepository.saveAndFlush(userEntity),User.class);
-        }
-        else
-        {
+            loggerService.saveLog("User: " + userEntity.getUsername() + " has changed password.", this.getClass().getName());
+            return modelMapper.map(userRepository.saveAndFlush(userEntity), User.class);
+        } else {
             throw new BadRequestException();
         }
     }
@@ -152,16 +158,16 @@ public class UserServiceImpl implements UserService {
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         entity.setStatus(UserEntity.Status.REQUESTED);
         entity.setRole(Role.CUSTOM_USER);
-        entity=userRepository.saveAndFlush(entity);
-        loggerService.saveLog("New user: " + entity.getUsername() + " has registered.",this.getClass().getName());
-        authService.sendActivationCode(entity.getUsername(),entity.getMail());
+        entity = userRepository.saveAndFlush(entity);
+        loggerService.saveLog("New user: " + entity.getUsername() + " has registered.", this.getClass().getName());
+        authService.sendActivationCode(entity.getUsername(), entity.getMail());
     }
 
     @Override
     public User activateAccount(String username) {
         UserEntity userEntity = userRepository.findByUsernameAndStatus(username, UserEntity.Status.REQUESTED).orElseThrow(NotFoundException::new);
         userEntity.setStatus(UserEntity.Status.ACTIVE);
-        loggerService.saveLog("User: " + userEntity.getUsername() + " has activated profile.",this.getClass().getName());
-        return modelMapper.map(userRepository.saveAndFlush(userEntity),User.class);
+        loggerService.saveLog("User: " + userEntity.getUsername() + " has activated profile.", this.getClass().getName());
+        return modelMapper.map(userRepository.saveAndFlush(userEntity), User.class);
     }
 }

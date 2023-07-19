@@ -16,10 +16,12 @@ public class AttributeValueEntity {
     private String value;
     @MapsId("productId")
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private ProductEntity product;
     @MapsId("attributeId")
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "attribute_id", referencedColumnName = "id", nullable = false)
     private AttributeEntity attribute;
 

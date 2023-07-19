@@ -9,6 +9,4 @@ public class MessageRequest {
 
     @NotBlank
     private String question;
-    @NotNull
-    private Boolean status;
 }

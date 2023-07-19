@@ -24,9 +24,11 @@ public class CommentEntity {
     @Column(name = "date", nullable = false)
     private Date date;
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private ProductEntity product;
 

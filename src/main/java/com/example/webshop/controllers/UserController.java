@@ -52,13 +52,13 @@ public class UserController {
     }
 
     @GetMapping("/products/purchased")
-    public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication)
+    public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication,String title)
     {
-        return userService.getAllProductsForBuyer(page,authentication);
+        return userService.getAllProductsForBuyer(page,authentication,title);
     }
     @GetMapping("/products/sold")
-    public Page<Product> getAllProductsForSeller(Pageable page,Integer finished,Authentication authentication)
+    public Page<Product> getAllProductsForSeller(Pageable page,Integer finished,Authentication authentication,String title)
     {
-        return userService.getAllProductsForSeller(page,finished,authentication);
+        return userService.getAllProductsForSeller(page,finished,authentication,title);
     }
 }

@@ -23,9 +23,9 @@ public class ProductController
 
 
     @GetMapping
-    public Page<Product> findAll(Pageable page)
+    public Page<Product> findAll(Pageable page,String title)
     {
-        return productService.findAll(page);
+        return productService.findAll(page,title);
     }
 
     @GetMapping("/{id}")
@@ -47,7 +47,7 @@ public class ProductController
         return productService.commentProduct(commentRequest,authentication);
     }
 
-    @PostMapping("/{id}/comment/answer")
+    @PutMapping("/{id}/comment/answer")
     @ResponseStatus(HttpStatus.CREATED)
     public Comment answer(@PathVariable Integer id,AnswerRequest answerRequest)
     {

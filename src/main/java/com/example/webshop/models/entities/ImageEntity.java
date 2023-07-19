@@ -17,6 +17,7 @@ public class ImageEntity {
     @Column(name = "product_image", nullable = false, length = 1024)
     private String productImage;
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private ProductEntity product;
 

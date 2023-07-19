@@ -18,8 +18,10 @@ public class CategoryEntity {
     @Column(name = "name", nullable = false, length = 45)
     private String name;
     @OneToMany(mappedBy = "category")
+    @ToString.Exclude
     private List<AttributeEntity> attributes;
     @OneToMany(mappedBy = "category")
+    @ToString.Exclude
     private List<ProductEntity> products;
 
 }

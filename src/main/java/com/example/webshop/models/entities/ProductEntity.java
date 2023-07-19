@@ -1,6 +1,7 @@
 package com.example.webshop.models.entities;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -40,18 +41,24 @@ public class ProductEntity {
     @Column(name = "creation_date", nullable = false)
     private Date creationDate;
     @OneToMany(mappedBy = "product")
+    @ToString.Exclude
     private List<AttributeValueEntity> attributeValues;
     @OneToMany(mappedBy = "product")
+    @ToString.Exclude
     private List<CommentEntity> comments;
     @OneToMany(mappedBy = "product")
+    @ToString.Exclude
     private List<ImageEntity> images;
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "seller_id", referencedColumnName = "id", nullable = false)
     private UserEntity userSeller;
     @ManyToOne
-    @JoinColumn(name = "buyer_id", referencedColumnName = "id", nullable = false)
+    @ToString.Exclude
+    @JoinColumn(name = "buyer_id", referencedColumnName = "id")
     private UserEntity userBuyer;
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private CategoryEntity category;
 

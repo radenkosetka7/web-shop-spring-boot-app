@@ -22,9 +22,11 @@ public class AttributeEntity {
     @Column(name = "type", nullable = false, length = 45)
     private Type type;
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private CategoryEntity category;
     @OneToMany(mappedBy = "attribute")
+    @ToString.Exclude
     private List<AttributeValueEntity> attributeValues;
 
 }

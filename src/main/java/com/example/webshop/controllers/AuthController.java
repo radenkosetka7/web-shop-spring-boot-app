@@ -8,6 +8,7 @@ import com.example.webshop.models.requests.SignUpRequest;
 import com.example.webshop.services.AuthService;
 import com.example.webshop.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;

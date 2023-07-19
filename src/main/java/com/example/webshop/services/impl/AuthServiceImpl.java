@@ -38,13 +38,12 @@ public class AuthServiceImpl implements AuthService {
     private final ModelMapper modelMapper;
     private final LoggerService loggerService;
 
-    private Map<String,String> codes=new HashMap<>();
+    private Map<String, String> codes = new HashMap<>();
 
     @Value("${authorization.token.expiration-time}")
     private String tokenExpirationTime;
     @Value("${authorization.token.secret}")
     private String tokenSecret;
-
 
 
     @Override
@@ -57,31 +56,31 @@ public class AuthServiceImpl implements AuthService {
                                     request.getUsername(), request.getPassword()
                             )
                     );
-            UserEntity userEntity=userRepository.findByUsername(request.getUsername()).orElseThrow(NotFoundException::new);
-            if(userEntity.getStatus().equals(UserEntity.Status.ACTIVE)) {
-                JwtUser user = (JwtUser) authenticate.getPrincipal();
-                response = modelMapper.map(userEntity, LoginResponse.class);
-                response.setToken(generateJwt(user));
-                loggerService.saveLog("User " + user.getUsername() + " has logged in to the system",this.getClass().getName());
-                return response;
-            }
-            else {
-                loggerService.saveLog("Activation code has sent",this.getClass().getName());
-                sendActivationCode(userEntity.getUsername(),userEntity.getMail());
-            }
+            JwtUser user = (JwtUser) authenticate.getPrincipal();
+            UserEntity userEntity = userRepository.findByUsername(request.getUsername()).orElseThrow(NotFoundException::new);
+            response = modelMapper.map(userEntity, LoginResponse.class);
+            response.setToken(generateJwt(user));
+            loggerService.saveLog("User " + user.getUsername() + " has logged in to the system", this.getClass().getName());
+            return response;
         } catch (Exception ex) {
             LoggingUtil.logException(ex, getClass());
+            UserEntity userEntity = userRepository.findByUsername(request.getUsername()).orElseThrow(NotFoundException::new);
+            loggerService.saveLog("Activation code has sent", this.getClass().getName());
+            sendActivationCode(userEntity.getUsername(), userEntity.getMail());
             throw new UnauthorizedException();
         }
-        return response;
     }
 
     @Override
-    public void sendActivationCode(String username,String mail) {
+    public void sendActivationCode(String username, String mail) {
         SecureRandom secureRandom = new SecureRandom();
-        String activationCode=String.valueOf(secureRandom.nextInt(9000)+1000);
-        codes.put(username,mail);
-        emailService.sendEmail(mail,activationCode);
+        String activationCode = String.valueOf(secureRandom.nextInt(9000) + 1000);
+        while(codes.containsKey(activationCode))
+        {
+            activationCode=String.valueOf(secureRandom.nextInt(9000)+1000);
+        }
+        codes.put(username, activationCode);
+        emailService.sendEmail(mail, activationCode);
 
     }
 

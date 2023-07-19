@@ -8,6 +8,7 @@ import com.example.webshop.models.entities.*;
 import com.example.webshop.models.requests.AnswerRequest;
 import com.example.webshop.models.requests.CommentRequest;
 import com.example.webshop.models.requests.ProductRequest;
+import com.example.webshop.models.requests.SearchRequest;
 import com.example.webshop.repositories.*;
 import com.example.webshop.services.LoggerService;
 import com.example.webshop.services.ProductService;
@@ -41,9 +42,9 @@ public class ProductServiceImpl implements ProductService {
     private EntityManager entityManager;
 
     @Override
-    public Product insert(ProductRequest productRequest,Authentication authentication) {
+    public Product insert(ProductRequest productRequest, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
-        UserEntity userEntity=userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
         ProductEntity productEntity = modelMapper.map(productRequest, ProductEntity.class);
         productEntity.setId(null);
         productEntity.setFinished(0);
@@ -51,7 +52,6 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setUserSeller(userEntity);
         //izvuci principala i postavi ga na seller-a
         productEntity = productRepository.saveAndFlush(productEntity);
-        entityManager.refresh(productEntity);
         for (ImageEntity imageEntity : productEntity.getImages()) {
             imageEntity.setId(null);
             imageEntity.setProduct(productEntity);
@@ -59,34 +59,42 @@ public class ProductServiceImpl implements ProductService {
         }
         for (AttributeValueEntity attributeValueEntity : productEntity.getAttributeValues()) {
             AttributeValueEntityPK attributeValueEntityPK = new AttributeValueEntityPK();
-            attributeValueEntityPK.setProductId(attributeValueEntity.getProduct().getId());
+            attributeValueEntityPK.setProductId(productEntity.getId());
             attributeValueEntityPK.setAttributeId(attributeValueEntity.getAttribute().getId());
             attributeValueEntity.setId(attributeValueEntityPK);
+            attributeValueEntity.setProduct(productEntity);
             attributeValueRepository.saveAndFlush(attributeValueEntity);
         }
-        loggerService.saveLog("The new product has been added by user " + userEntity.getUsername(),this.getClass().getName());
-        return modelMapper.map(productEntity,Product.class);
+        loggerService.saveLog("The new product has been added by user " + userEntity.getUsername(), this.getClass().getName());
+        return modelMapper.map(productEntity, Product.class);
     }
 
     @Override
-    public Product findById(Integer id) {
+    public Product findById(Integer id)
+    {
         return modelMapper.map(productRepository.findById(id), Product.class);
     }
 
     @Override
-    public Page<Product> findAll(Pageable page) {
-        return productRepository.findAll(page).map(p -> modelMapper.map(p, Product.class));
+    public Page<Product> findAll(Pageable page, String title) {
+        if (title == null || title.isEmpty()) {
+            return productRepository.getAllActiveProducts(page).map(p -> modelMapper.map(p, Product.class));
+        }
+        else
+        {
+            return productRepository.searchAllByTitleIgnoreCase(page,title).map(p->modelMapper.map(p,Product.class));
+        }
     }
 
     @Override
-    public Comment commentProduct(CommentRequest commentRequest,Authentication authentication) {
+    public Comment commentProduct(CommentRequest commentRequest, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
-        UserEntity userEntity=userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
         CommentEntity commentEntity = modelMapper.map(commentRequest, CommentEntity.class);
         commentEntity.setId(null);
         commentEntity.setDate(new Date());
         commentEntity.setUser(userEntity);
-        loggerService.saveLog("The user " + userEntity.getUsername() + " has given comment to product " + commentEntity.getProduct().getTitle(),this.getClass().getName());
+        loggerService.saveLog("The user " + userEntity.getUsername() + " has given comment to product " + commentEntity.getProduct().getTitle(), this.getClass().getName());
         //iz principala uzeti usera
         commentEntity = commentRepository.saveAndFlush(commentEntity);
         entityManager.refresh(commentEntity);
@@ -98,28 +106,34 @@ public class ProductServiceImpl implements ProductService {
         CommentEntity commentEntity = commentRepository.findById(id).orElseThrow(NotFoundException::new);
         commentEntity.setAnswer(answerRequest.getAnswer());
         commentEntity = commentRepository.saveAndFlush(commentEntity);
-        loggerService.saveLog("Product owner answered on comment for product  " + commentEntity.getProduct().getTitle(),this.getClass().getName());
+        loggerService.saveLog("Product owner answered on comment for product  " + commentEntity.getProduct().getTitle(), this.getClass().getName());
         entityManager.refresh(commentEntity);
         return modelMapper.map(commentEntity, Comment.class);
     }
 
     @Override
-    public Product purchaseProduct(Integer id,Authentication authentication) {
+    public Product purchaseProduct(Integer id, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
-        UserEntity userEntity=userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
         productEntity.setUserSeller(userEntity);
-        loggerService.saveLog("The user " + userEntity.getUsername() + " has purchased prdouct " + productEntity.getTitle(),this.getClass().getName());
+        loggerService.saveLog("The user " + userEntity.getUsername() + " has purchased prdouct " + productEntity.getTitle(), this.getClass().getName());
         //iz principala izvuci usera
         productEntity.setFinished(1);
         return modelMapper.map(productRepository.saveAndFlush(productEntity), Product.class);
     }
 
     @Override
+    public Page<Product> searchProducts(Pageable page, SearchRequest searchRequest)
+    {
+        return null;
+    }
+
+    @Override
     public void delete(Integer id) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
         productEntity.setFinished(2);
-        loggerService.saveLog("The user has deleted product" + productEntity.getTitle(),this.getClass().getName());
+        loggerService.saveLog("The user has deleted product" + productEntity.getTitle(), this.getClass().getName());
         productRepository.saveAndFlush(productEntity);
     }
 }

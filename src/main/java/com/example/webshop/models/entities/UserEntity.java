@@ -43,12 +43,16 @@ public class UserEntity {
     @Column(name = "mail", nullable = false, length = 45)
     private String mail;
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private List<CommentEntity> comments;
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private List<MessageEntity> messages;
     @OneToMany(mappedBy = "userSeller")
+    @ToString.Exclude
     private List<ProductEntity> productsSeller;
     @OneToMany(mappedBy = "userBuyer")
+    @ToString.Exclude
     private List<ProductEntity> productsBuyer;
 
     public enum Status {

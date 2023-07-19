@@ -25,4 +25,10 @@ public interface UserRepository extends JpaRepository<UserEntity,Integer> {
 
    Optional<UserEntity> findByUsername(String username);
 
+    @Query("select p from ProductEntity p where p.userBuyer.id=:id and LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))")
+    Page<ProductEntity> getAllProductsForBuyerAndSearch(Pageable page,Integer id,String title);
+
+    @Query("select p from ProductEntity p where p.userSeller.id=:id and p.finished=:finished and LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))")
+    Page<ProductEntity> getAllProductsForSellerSearch(Pageable page,Integer id,Integer finished,String title);
+
 }

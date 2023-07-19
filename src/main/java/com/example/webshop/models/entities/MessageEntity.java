@@ -2,6 +2,7 @@ package com.example.webshop.models.entities;
 
 import javax.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -18,6 +19,7 @@ public class MessageEntity {
     @Column(name = "status", nullable = false)
     private Boolean status;
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
 
