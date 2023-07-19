@@ -45,14 +45,21 @@
     },
     {
       "methods": ["POST"],
-      "pattern": "/products/comments",
+      "pattern": "/products/*/comments",
       "roles": [
         "CUSTOM_USER"
       ]
     },
     {
-      "methods": ["POST"],
+      "methods": ["PUT"],
       "pattern": "/products/*/comment/answer",
+      "roles": [
+        "CUSTOM_USER"
+      ]
+    },
+    {
+      "methods": ["GET"],
+      "pattern": "/categories/*",
       "roles": [
         "CUSTOM_USER"
       ]

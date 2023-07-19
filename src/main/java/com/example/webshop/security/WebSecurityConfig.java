@@ -66,7 +66,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/activeAccount").permitAll()
                 .antMatchers(HttpMethod.GET, "/products").permitAll()
                 .antMatchers(HttpMethod.GET, "/products/*").permitAll()
-                .antMatchers(HttpMethod.GET, "/categories/*").permitAll();
+                .antMatchers(HttpMethod.GET, "/categories/*/products").permitAll()
+                .antMatchers(HttpMethod.GET, "/categories/").permitAll();
         for (Rule rule : authorizationRules.getRules()) {
             if (rule.getMethods().isEmpty())
                 interceptor = interceptor.antMatchers(rule.getPattern()).hasAnyAuthority(rule.getRoles().toArray(String[]::new));

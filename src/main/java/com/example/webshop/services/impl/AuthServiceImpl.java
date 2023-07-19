@@ -65,8 +65,11 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception ex) {
             LoggingUtil.logException(ex, getClass());
             UserEntity userEntity = userRepository.findByUsername(request.getUsername()).orElseThrow(NotFoundException::new);
+            if(userEntity.getStatus().equals(UserEntity.Status.REQUESTED))
+            {
             loggerService.saveLog("Activation code has sent", this.getClass().getName());
             sendActivationCode(userEntity.getUsername(), userEntity.getMail());
+            }
             throw new UnauthorizedException();
         }
     }

@@ -40,16 +40,15 @@ public class ProductController
     {
         return productService.insert(productRequest,authentication);
     }
-    @PostMapping("/comments")
+    @PostMapping("/{id}/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public Comment comment(@RequestBody CommentRequest commentRequest,Authentication authentication)
+    public Comment comment(@PathVariable Integer id,@RequestBody CommentRequest commentRequest,Authentication authentication)
     {
-        return productService.commentProduct(commentRequest,authentication);
+        return productService.commentProduct(id,commentRequest,authentication);
     }
 
     @PutMapping("/{id}/comment/answer")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Comment answer(@PathVariable Integer id,AnswerRequest answerRequest)
+    public Comment answer(@PathVariable Integer id,@RequestBody AnswerRequest answerRequest)
     {
         return productService.answer(id,answerRequest);
     }

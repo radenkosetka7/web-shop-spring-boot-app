@@ -18,9 +18,10 @@ public class Product {
     private String city;
     private String contact;
     private Date creationDate;
-    private Boolean finished;
+    private Integer finished;
     private Category category;
     private User userSeller;
+    private User userBuyer;
     private List<Image> images;
     private List<Comment> comments;
     private List<AttributeValue> attributeValues;

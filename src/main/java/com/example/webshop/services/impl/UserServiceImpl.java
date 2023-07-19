@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findById(id).orElseThrow(NotFoundException::new);
         userEntity.setAvatar(userRequest.getAvatar());
         userEntity.setName(userRequest.getName());
-        userEntity.setUsername(userRequest.getSurname());
+        userEntity.setSurname(userRequest.getSurname());
         userEntity.setCity(userRequest.getCity());
         userEntity.setMail(userRequest.getMail());
         loggerService.saveLog("User: " + userEntity.getUsername() + " has updated profile.", this.getClass().getName());
@@ -135,8 +135,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User changePassword(Integer id, ChangePasswordRequest changePasswordRequest) {
         UserEntity userEntity = userRepository.findById(id).orElseThrow(NotFoundException::new);
-        if (changePasswordRequest.getPassword() == changePasswordRequest.getNewPassword() &&
-                passwordEncoder.matches(userEntity.getPassword(), changePasswordRequest.getOldPassword())) {
+        if (changePasswordRequest.getPassword().equals(changePasswordRequest.getNewPassword())) {
             userEntity.setPassword(passwordEncoder.encode(changePasswordRequest.getPassword()));
             loggerService.saveLog("User: " + userEntity.getUsername() + " has changed password.", this.getClass().getName());
             return modelMapper.map(userRepository.saveAndFlush(userEntity), User.class);

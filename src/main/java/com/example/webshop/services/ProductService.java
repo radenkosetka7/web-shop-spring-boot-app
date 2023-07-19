@@ -18,7 +18,7 @@ public interface ProductService {
 
     Page<Product> findAll(Pageable page,String title);
 
-    Comment commentProduct(CommentRequest commentRequest,Authentication authentication);
+    Comment commentProduct(Integer id,CommentRequest commentRequest,Authentication authentication);
 
     Comment answer(Integer id, AnswerRequest answerRequest);
 

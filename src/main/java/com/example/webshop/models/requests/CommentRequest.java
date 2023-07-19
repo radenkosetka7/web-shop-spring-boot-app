@@ -9,7 +9,5 @@ public class CommentRequest {
 
     @NotBlank
     private String question;
-    @NotNull
-    private Integer productId;
 
 }

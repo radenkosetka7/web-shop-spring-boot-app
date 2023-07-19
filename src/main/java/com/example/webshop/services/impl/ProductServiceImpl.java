@@ -72,7 +72,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product findById(Integer id)
     {
-        return modelMapper.map(productRepository.findById(id), Product.class);
+        ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
+        return modelMapper.map(productEntity, Product.class);
     }
 
     @Override
@@ -87,13 +88,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Comment commentProduct(CommentRequest commentRequest, Authentication authentication) {
+    public Comment commentProduct(Integer id,CommentRequest commentRequest, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
+        ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
         CommentEntity commentEntity = modelMapper.map(commentRequest, CommentEntity.class);
         commentEntity.setId(null);
         commentEntity.setDate(new Date());
         commentEntity.setUser(userEntity);
+        commentEntity.setProduct(productEntity);
         loggerService.saveLog("The user " + userEntity.getUsername() + " has given comment to product " + commentEntity.getProduct().getTitle(), this.getClass().getName());
         //iz principala uzeti usera
         commentEntity = commentRepository.saveAndFlush(commentEntity);
@@ -116,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
         JwtUser user = (JwtUser) authentication.getPrincipal();
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
-        productEntity.setUserSeller(userEntity);
+        productEntity.setUserBuyer(userEntity);
         loggerService.saveLog("The user " + userEntity.getUsername() + " has purchased prdouct " + productEntity.getTitle(), this.getClass().getName());
         //iz principala izvuci usera
         productEntity.setFinished(1);

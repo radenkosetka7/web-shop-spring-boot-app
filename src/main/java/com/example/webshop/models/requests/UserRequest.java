@@ -11,7 +11,6 @@ public class UserRequest {
     private String surname;
     @NotBlank
     private String city;
-    @NotBlank
     private String avatar;
     @NotBlank
     @Email
