@@ -5,6 +5,7 @@ import com.example.webshop.models.dto.Product;
 import com.example.webshop.models.requests.AnswerRequest;
 import com.example.webshop.models.requests.CommentRequest;
 import com.example.webshop.models.requests.ProductRequest;
+import com.example.webshop.models.requests.SearchRequest;
 import com.example.webshop.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,12 @@ public class ProductController
     public Product findById(@PathVariable Integer id)
     {
         return productService.findById(id);
+    }
+
+    @PostMapping("/searchProducts")
+    public Page<Product>  findById(Pageable page,@RequestBody SearchRequest searchRequest)
+    {
+        return productService.searchProducts(page,searchRequest);
     }
 
     @PostMapping

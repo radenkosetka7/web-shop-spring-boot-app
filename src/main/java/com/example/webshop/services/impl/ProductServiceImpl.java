@@ -1,6 +1,7 @@
 package com.example.webshop.services.impl;
 
 import com.example.webshop.exceptions.NotFoundException;
+import com.example.webshop.models.dto.AttributeValue;
 import com.example.webshop.models.dto.Comment;
 import com.example.webshop.models.dto.JwtUser;
 import com.example.webshop.models.dto.Product;
@@ -15,6 +16,7 @@ import com.example.webshop.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
@@ -129,7 +139,48 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> searchProducts(Pageable page, SearchRequest searchRequest)
     {
-        return null;
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ProductEntity> criteriaQuery = criteriaBuilder.createQuery(ProductEntity.class);
+        Root<ProductEntity> root = criteriaQuery.from(ProductEntity.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+
+        if (searchRequest.getCategoryName() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("category").get("name"), searchRequest.getCategoryName()));
+        }
+
+        if (searchRequest.getLocation() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("city"), searchRequest.getLocation()));
+        }
+
+        if (searchRequest.getProductStatus() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("productStatus"), searchRequest.getProductStatus()));
+        }
+
+        if (searchRequest.getPriceFrom() != null) {
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), BigDecimal.valueOf(searchRequest.getPriceFrom())));
+        }
+
+        if (searchRequest.getPriceTo() != null) {
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), BigDecimal.valueOf(searchRequest.getPriceTo())));
+        }
+
+        if (searchRequest.getAttributeValueList() != null && !searchRequest.getAttributeValueList().isEmpty()) {
+            for (AttributeValue attributeValue : searchRequest.getAttributeValueList()) {
+                predicates.add(criteriaBuilder.equal(
+                        root.join("attributeValues").get("attribute").get("id"), attributeValue.getAttribute().getId()));
+                predicates.add(criteriaBuilder.equal(
+                        root.join("attributeValues").get("value"), attributeValue.getValue()));
+            }
+        }
+
+        criteriaQuery.where(predicates.toArray(new Predicate[0]));
+
+        TypedQuery<ProductEntity> typedQuery = entityManager.createQuery(criteriaQuery);
+        List<ProductEntity> productEntities = typedQuery.getResultList();
+        List<Product> products = productEntities.stream().map(e -> modelMapper.map(e, Product.class)).toList();
+
+        return new PageImpl<>(products, page, products.size());
     }
 
     @Override
