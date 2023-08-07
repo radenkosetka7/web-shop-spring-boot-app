@@ -24,7 +24,7 @@ public class ProductController
 
 
     @GetMapping
-    public Page<Product> findAll(Pageable page,String title)
+    public Page<Product> findAll(Pageable page,@RequestParam(required = false) String title)
     {
         return productService.findAll(page,title);
     }
