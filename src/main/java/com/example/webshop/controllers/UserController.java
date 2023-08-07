@@ -57,7 +57,7 @@ public class UserController {
         return userService.getAllProductsForBuyer(page,authentication,title);
     }
     @GetMapping("/products/sold")
-    public Page<Product> getAllProductsForSeller(Pageable page,Integer finished,Authentication authentication,@RequestParam(required = false) String title)
+    public Page<Product> getAllProductsForSeller(Pageable page,@RequestParam(required = false) Integer finished,Authentication authentication,@RequestParam(required = false) String title)
     {
         return userService.getAllProductsForSeller(page,finished,authentication,title);
     }
