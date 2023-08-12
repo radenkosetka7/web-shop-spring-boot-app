@@ -18,13 +18,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
 @Configuration
@@ -67,7 +66,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/products").permitAll()
                 .antMatchers(HttpMethod.GET, "/products/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/categories/*/products").permitAll()
-                .antMatchers(HttpMethod.GET, "/categories/").permitAll()
+                .antMatchers(HttpMethod.GET, "/categories").permitAll()
+                .antMatchers(HttpMethod.GET, "/categories/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/products/searchProducts").permitAll();
         for (Rule rule : authorizationRules.getRules()) {
             if (rule.getMethods().isEmpty())
@@ -104,8 +104,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    GrantedAuthorityDefaults grantedAuthorityDefaults()
-    {
+    GrantedAuthorityDefaults grantedAuthorityDefaults() {
         return new GrantedAuthorityDefaults("");
     }
 

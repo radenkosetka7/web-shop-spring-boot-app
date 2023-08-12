@@ -1,11 +1,10 @@
 package com.example.webshop.models.entities;
 
-import com.example.webshop.models.enums.Role;
-import javax.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.ToString;
 
+import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 @Entity
@@ -33,9 +32,6 @@ public class UserEntity {
     @Basic
     @Column(name = "avatar", nullable = true, length = 1024)
     private String avatar;
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "role", nullable = false)
-    private Role role;
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private Status status;

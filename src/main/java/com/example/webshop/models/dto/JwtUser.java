@@ -1,6 +1,7 @@
 package com.example.webshop.models.dto;
 
 import com.example.webshop.models.enums.Role;
+import com.example.webshop.models.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,11 +20,11 @@ public class JwtUser implements UserDetails {
     private Integer id;
     private String username;
     private String password;
-    private Role role;
+    private UserStatus userStatus;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(userStatus.name()));
     }
 
     @Override

@@ -7,11 +7,13 @@ import com.example.webshop.models.dto.JwtUser;
 import com.example.webshop.models.dto.LoginResponse;
 import com.example.webshop.models.dto.Product;
 import com.example.webshop.models.dto.User;
+import com.example.webshop.models.entities.EmpoyeeEntity;
 import com.example.webshop.models.entities.UserEntity;
 import com.example.webshop.models.enums.Role;
 import com.example.webshop.models.requests.ChangePasswordRequest;
 import com.example.webshop.models.requests.SignUpRequest;
 import com.example.webshop.models.requests.UserRequest;
+import com.example.webshop.repositories.EmployeeRepository;
 import com.example.webshop.repositories.UserRepository;
 import com.example.webshop.services.AuthService;
 import com.example.webshop.services.LoggerService;
@@ -38,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final LoggerService loggerService;
+    private final EmployeeRepository employeeRepository;
 
 
     @Value("${authorization.default.username-admin:}")
@@ -69,26 +72,20 @@ public class UserServiceImpl implements UserService {
     public void postConstruct() {
 
         if (userRepository.count() == 0) {
-            UserEntity userEntity = new UserEntity();
-            UserEntity userEntity1 = new UserEntity();
-            userEntity.setUsername(defaultUsernameAdmin);
-            userEntity.setPassword(passwordEncoder.encode(defaultPasswordAdmin));
-            userEntity.setMail(defaultEmailAdmin);
-            userEntity.setName(defaultFirstNameAdmin);
-            userEntity.setSurname(defaultLastNameAdmin);
-            userEntity.setCity(defaultCity);
-            userEntity.setStatus(UserEntity.Status.ACTIVE);
-            userEntity.setRole(Role.ADMIN);
-            userEntity1.setUsername(defaultUsernameSupport);
-            userEntity1.setPassword(passwordEncoder.encode(defaultPasswordSupport));
-            userEntity1.setMail(defaultEmailSupport);
-            userEntity1.setName(defaultFirstNameSupport);
-            userEntity1.setSurname(defaultLastNameSupport);
-            userEntity1.setCity(defaultCity);
-            userEntity1.setStatus(UserEntity.Status.ACTIVE);
-            userEntity1.setRole(Role.SUPPORT);
-            userRepository.saveAndFlush(userEntity);
-            userRepository.saveAndFlush(userEntity1);
+            EmpoyeeEntity admin = new EmpoyeeEntity();
+            EmpoyeeEntity support = new EmpoyeeEntity();
+            admin.setUsername(defaultUsernameAdmin);
+            admin.setPassword(passwordEncoder.encode(defaultPasswordAdmin));
+            admin.setFirstname(defaultFirstNameAdmin);
+            admin.setSurname(defaultLastNameAdmin);
+            admin.setRole(Role.ADMIN);
+            support.setUsername(defaultUsernameSupport);
+            support.setPassword(passwordEncoder.encode(defaultPasswordSupport));
+            support.setFirstname(defaultFirstNameSupport);
+            support.setSurname(defaultLastNameSupport);
+            support.setRole(Role.SUPPORT);
+            employeeRepository.saveAndFlush(admin);
+            employeeRepository.saveAndFlush(support);
         }
     }
 
@@ -156,7 +153,6 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = modelMapper.map(request, UserEntity.class);
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         entity.setStatus(UserEntity.Status.REQUESTED);
-        entity.setRole(Role.CUSTOM_USER);
         entity = userRepository.saveAndFlush(entity);
         loggerService.saveLog("New user: " + entity.getUsername() + " has registered.", this.getClass().getName());
         authService.sendActivationCode(entity.getUsername(), entity.getMail());

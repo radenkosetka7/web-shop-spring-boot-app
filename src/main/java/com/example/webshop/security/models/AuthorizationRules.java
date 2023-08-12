@@ -7,5 +7,6 @@ import java.util.List;
 @Data
 public class AuthorizationRules {
 
-    List<Rule> rules;
+
+    private List<Rule> rules;
 }

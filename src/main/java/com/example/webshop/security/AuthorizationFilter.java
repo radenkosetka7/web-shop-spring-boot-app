@@ -2,6 +2,7 @@ package com.example.webshop.security;
 
 import com.example.webshop.models.dto.JwtUser;
 import com.example.webshop.models.enums.Role;
+import com.example.webshop.models.enums.UserStatus;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import javax.servlet.FilterChain;
@@ -41,7 +42,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                     .setSigningKey(authorizationSecret)
                     .parseClaimsJws(token)
                     .getBody();
-            JwtUser jwtUser = new JwtUser(Integer.valueOf(claims.getId()), claims.getSubject(), null, Role.valueOf(claims.get("role", String.class)));
+
+            JwtUser jwtUser = new JwtUser(Integer.valueOf(claims.getId()), claims.getSubject(), null, UserStatus.valueOf(claims.get("status", String.class)));
             Authentication authentication = new UsernamePasswordAuthenticationToken(jwtUser, null, jwtUser.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {

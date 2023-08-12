@@ -97,7 +97,7 @@ public class AuthServiceImpl implements AuthService {
         return Jwts.builder()
                 .setId(user.getId().toString())
                 .setSubject(user.getUsername())
-                .claim("role", user.getRole().name())
+                .claim("status", user.getUserStatus().name())
                 .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(tokenExpirationTime)))
                 .signWith(SignatureAlgorithm.HS512, tokenSecret)
                 .compact();
