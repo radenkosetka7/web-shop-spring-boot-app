@@ -67,8 +67,8 @@ public class AuthServiceImpl implements AuthService {
             UserEntity userEntity = userRepository.findByUsername(request.getUsername()).orElseThrow(NotFoundException::new);
             if(userEntity.getStatus().equals(UserEntity.Status.REQUESTED))
             {
-            loggerService.saveLog("Activation code has sent", this.getClass().getName());
-            sendActivationCode(userEntity.getUsername(), userEntity.getMail());
+                loggerService.saveLog("Activation code has sent", this.getClass().getName());
+                sendActivationCode(userEntity.getUsername(), userEntity.getMail());
             }
             throw new UnauthorizedException();
         }

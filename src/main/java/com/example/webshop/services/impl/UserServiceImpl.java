@@ -27,8 +27,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -51,10 +56,7 @@ public class UserServiceImpl implements UserService {
     private String defaultLastNameAdmin;
     @Value("${authorization.default.password-admin:}")
     private String defaultPasswordAdmin;
-    @Value("${authorization.default.email-admin:}")
-    private String defaultEmailAdmin;
-    @Value("${authorization.default.city:}")
-    private String defaultCity;
+
 
     @Value("${authorization.default.username-support:}")
     private String defaultUsernameSupport;
@@ -64,14 +66,14 @@ public class UserServiceImpl implements UserService {
     private String defaultLastNameSupport;
     @Value("${authorization.default.password-support:}")
     private String defaultPasswordSupport;
-    @Value("${authorization.default.email-support:}")
-    private String defaultEmailSupport;
 
+    @Value("${avatarDir:}")
+    private String dir;
 
     @PostConstruct
     public void postConstruct() {
 
-        if (userRepository.count() == 0) {
+        if (employeeRepository.count() == 0) {
             EmpoyeeEntity admin = new EmpoyeeEntity();
             EmpoyeeEntity support = new EmpoyeeEntity();
             admin.setUsername(defaultUsernameAdmin);
@@ -107,7 +109,7 @@ public class UserServiceImpl implements UserService {
         if (title == null || title.isEmpty()) {
             return userRepository.getAllProductsForSeller(page, user.getId(), finished).map(p -> modelMapper.map(p, Product.class));
         } else {
-            return userRepository.getAllProductsForSellerSearch(page, user.getId(),finished,title).map(p -> modelMapper.map(p, Product.class));
+            return userRepository.getAllProductsForSellerSearch(page, user.getId(), finished, title).map(p -> modelMapper.map(p, Product.class));
 
         }
     }
@@ -127,6 +129,20 @@ public class UserServiceImpl implements UserService {
         userEntity.setMail(userRequest.getMail());
         loggerService.saveLog("User: " + userEntity.getUsername() + " has updated profile.", this.getClass().getName());
         return modelMapper.map(userRepository.saveAndFlush(userEntity), User.class);
+    }
+
+
+    @Override
+    public String uploadImage(MultipartFile file) {
+        try {
+            String imageName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            Path imagePath = Paths.get(dir + imageName);
+            Files.copy(file.getInputStream(), imagePath);
+            return imageName;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
 
     @Override

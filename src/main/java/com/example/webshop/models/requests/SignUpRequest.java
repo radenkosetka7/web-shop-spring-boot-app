@@ -2,6 +2,7 @@ package com.example.webshop.models.requests;
 
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

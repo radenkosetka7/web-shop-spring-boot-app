@@ -11,6 +11,7 @@ import com.example.webshop.models.requests.UserRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
@@ -21,6 +22,8 @@ public interface UserService {
     User findById(Integer id);
 
     User update(Integer id, UserRequest userRequest);
+
+    String uploadImage(MultipartFile file);
 
     User changePassword(Integer id, ChangePasswordRequest changePasswordRequest);
 
