@@ -77,7 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 interceptor = interceptor.antMatchers(HttpMethod.resolve(method), rule.getPattern()).hasAnyAuthority(rule.getRoles().toArray(String[]::new));
             }
         }
-        return interceptor.anyRequest().denyAll().and();
+        return interceptor.anyRequest().authenticated().and();
     }
 
     @Override

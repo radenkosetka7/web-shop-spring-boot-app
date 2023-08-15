@@ -157,6 +157,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     @Override
     public LoginResponse findById(Integer id, Class<LoginResponse> response) throws NotFoundException {
         return modelMapper.map(userRepository.findById(id).orElseThrow(NotFoundException::new), LoginResponse.class);

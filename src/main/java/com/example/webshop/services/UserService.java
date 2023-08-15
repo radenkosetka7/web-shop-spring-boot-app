@@ -4,7 +4,6 @@ import com.example.webshop.exceptions.NotFoundException;
 import com.example.webshop.models.dto.LoginResponse;
 import com.example.webshop.models.dto.Product;
 import com.example.webshop.models.dto.User;
-import com.example.webshop.models.entities.ProductEntity;
 import com.example.webshop.models.requests.ChangePasswordRequest;
 import com.example.webshop.models.requests.SignUpRequest;
 import com.example.webshop.models.requests.UserRequest;
