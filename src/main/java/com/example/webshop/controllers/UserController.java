@@ -30,7 +30,6 @@ public class UserController {
     @PutMapping("/{id}")
     public User update(@PathVariable Integer id, @Valid @RequestBody UserRequest userRequest,Authentication authentication)
     {
-        //provjeri principala
         JwtUser user=(JwtUser)authentication.getPrincipal();
         if(!user.getId().equals(id))
         {
@@ -42,7 +41,6 @@ public class UserController {
     @PutMapping("/{id}/changePassword")
     public User changePassword(@PathVariable Integer id, @Valid @RequestBody ChangePasswordRequest changePasswordRequest,Authentication authentication)
     {
-        //provjeri principala
         JwtUser user=(JwtUser)authentication.getPrincipal();
         if(!user.getId().equals(id))
         {

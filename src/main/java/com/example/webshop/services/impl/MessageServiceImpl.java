@@ -37,7 +37,6 @@ public class MessageServiceImpl implements MessageService {
         messageEntity.setUser(userEntity);
         messageEntity.setStatus(false);
         loggerService.saveLog("User: " + user.getUsername() + " has sent message to customer support.",this.getClass().getName());
-        //izvuci user principal
         return modelMapper.map(messageRepository.saveAndFlush(messageEntity), com.example.webshop.models.dto.Message.class);
     }
 }
