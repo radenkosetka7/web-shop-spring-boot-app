@@ -13,14 +13,17 @@ import com.example.webshop.models.requests.SearchRequest;
 import com.example.webshop.repositories.*;
 import com.example.webshop.services.LoggerService;
 import com.example.webshop.services.ProductService;
+import com.example.webshop.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -31,6 +34,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -46,8 +50,9 @@ public class ProductServiceImpl implements ProductService {
     private final AttributeValueRepository attributeValueRepository;
     private final LoggerService loggerService;
     private final UserRepository userRepository;
-
-
+    private final AttributeRepository attributeRepository;
+    @Value("${productsDir:}")
+    private String dir;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -55,12 +60,12 @@ public class ProductServiceImpl implements ProductService {
     public Product insert(ProductRequest productRequest, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(NotFoundException::new);
+        List<AttributeValueEntity> attributeValueEntities = new ArrayList<>();
         ProductEntity productEntity = modelMapper.map(productRequest, ProductEntity.class);
         productEntity.setId(null);
         productEntity.setFinished(0);
         productEntity.setCreationDate(new Date());
         productEntity.setUserSeller(userEntity);
-        //izvuci principala i postavi ga na seller-a
         productEntity = productRepository.saveAndFlush(productEntity);
         for (ImageEntity imageEntity : productEntity.getImages()) {
             imageEntity.setId(null);
@@ -87,6 +92,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<String> uploadImages(List<MultipartFile> files) {
+        return Util.uploadProductImages(files,dir);
+    }
+
+    @Override
     public Page<Product> findAll(Pageable page, String title) {
         if (title == null || title.isEmpty()) {
             return productRepository.getAllActiveProducts(page).map(p -> modelMapper.map(p, Product.class));
@@ -108,7 +118,6 @@ public class ProductServiceImpl implements ProductService {
         commentEntity.setUser(userEntity);
         commentEntity.setProduct(productEntity);
         loggerService.saveLog("The user " + userEntity.getUsername() + " has given comment to product " + commentEntity.getProduct().getTitle(), this.getClass().getName());
-        //iz principala uzeti usera
         commentEntity = commentRepository.saveAndFlush(commentEntity);
         entityManager.refresh(commentEntity);
         return modelMapper.map(commentEntity, Comment.class);
@@ -131,7 +140,6 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(NotFoundException::new);
         productEntity.setUserBuyer(userEntity);
         loggerService.saveLog("The user " + userEntity.getUsername() + " has purchased prdouct " + productEntity.getTitle(), this.getClass().getName());
-        //iz principala izvuci usera
         productEntity.setFinished(1);
         return modelMapper.map(productRepository.saveAndFlush(productEntity), Product.class);
     }

@@ -6,6 +6,7 @@ import com.example.webshop.models.requests.AccountActivationRequest;
 import com.example.webshop.models.requests.LoginRequest;
 import com.example.webshop.models.requests.SignUpRequest;
 import com.example.webshop.services.AuthService;
+import com.example.webshop.services.ProductService;
 import com.example.webshop.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final ProductService productService;
 
 
     @PostMapping("login")
@@ -38,6 +41,10 @@ public class AuthController {
     @PostMapping("uploadImage")
     public String uploadImage(@RequestParam(value = "file", required = false) MultipartFile file) {
        return userService.uploadImage(file);
+    }
+    @PostMapping("uploadImages")
+    public List<String> uploadImages(@RequestParam(value = "files", required = false) List<MultipartFile> files) {
+        return productService.uploadImages(files);
     }
 
     @PostMapping("activeAccount")

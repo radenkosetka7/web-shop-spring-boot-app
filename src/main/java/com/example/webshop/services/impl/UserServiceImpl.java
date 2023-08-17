@@ -18,6 +18,7 @@ import com.example.webshop.repositories.UserRepository;
 import com.example.webshop.services.AuthService;
 import com.example.webshop.services.LoggerService;
 import com.example.webshop.services.UserService;
+import com.example.webshop.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -134,15 +135,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String uploadImage(MultipartFile file) {
-        try {
-            String imageName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path imagePath = Paths.get(dir + imageName);
-            Files.copy(file.getInputStream(), imagePath);
-            return imageName;
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            return null;
-        }
+        return Util.uploadAvatarImage(file,dir);
     }
 
     @Override
