@@ -14,9 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
-    Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication,String title);
+    Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication);
 
-    Page<Product> getAllProductsForSeller(Pageable page,Integer finished, Authentication authentication,String title);
+    Page<Product> getAllProductsForSeller(Pageable page,Integer finished, Authentication authentication);
 
     User findById(Integer id);
 

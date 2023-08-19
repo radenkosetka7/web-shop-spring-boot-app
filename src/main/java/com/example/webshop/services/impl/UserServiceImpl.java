@@ -93,26 +93,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication, String title) {
+    public Page<Product> getAllProductsForBuyer(Pageable page, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
         loggerService.saveLog("User: " + user.getUsername() + " has searched his purchased products.", this.getClass().getName());
-        if (title == null || title.isEmpty()) {
             return userRepository.getAllProductsForBuyer(page, user.getId()).map(p -> modelMapper.map(p, Product.class));
-        } else {
-            return userRepository.getAllProductsForBuyerAndSearch(page, user.getId(), title).map(p -> modelMapper.map(p, Product.class));
-        }
     }
 
     @Override
-    public Page<Product> getAllProductsForSeller(Pageable page, Integer finished, Authentication authentication, String title) {
+    public Page<Product> getAllProductsForSeller(Pageable page, Integer finished, Authentication authentication) {
         JwtUser user = (JwtUser) authentication.getPrincipal();
         loggerService.saveLog("User: " + user.getUsername() + " has searched his sold products.", this.getClass().getName());
-        if (title == null || title.isEmpty()) {
-            return userRepository.getAllProductsForSeller(page, user.getId(), finished).map(p -> modelMapper.map(p, Product.class));
-        } else {
-            return userRepository.getAllProductsForSellerSearch(page, user.getId(), finished, title).map(p -> modelMapper.map(p, Product.class));
-
-        }
+        return userRepository.getAllProductsForSeller(page, user.getId(), finished).map(p -> modelMapper.map(p, Product.class));
     }
 
     @Override
