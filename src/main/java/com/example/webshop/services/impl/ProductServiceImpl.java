@@ -152,6 +152,7 @@ public class ProductServiceImpl implements ProductService {
         Root<ProductEntity> root = criteriaQuery.from(ProductEntity.class);
         List<Predicate> predicates = new ArrayList<>();
 
+        predicates.add(criteriaBuilder.equal(root.get("finished"), 0));
         if (searchRequest.getTitle() != null) {
             predicates.add(criteriaBuilder.like(root.get("title"), "%" + searchRequest.getTitle() + "%"));
         }
