@@ -152,6 +152,10 @@ public class ProductServiceImpl implements ProductService {
         Root<ProductEntity> root = criteriaQuery.from(ProductEntity.class);
         List<Predicate> predicates = new ArrayList<>();
 
+        if (searchRequest.getTitle() != null) {
+            predicates.add(criteriaBuilder.like(root.get("title"), "%" + searchRequest.getTitle() + "%"));
+        }
+
 
         if (searchRequest.getCategoryName() != null) {
             predicates.add(criteriaBuilder.equal(root.get("category").get("name"), searchRequest.getCategoryName()));
@@ -185,10 +189,14 @@ public class ProductServiceImpl implements ProductService {
         criteriaQuery.where(predicates.toArray(new Predicate[0]));
 
         TypedQuery<ProductEntity> typedQuery = entityManager.createQuery(criteriaQuery);
+        int totalResults = typedQuery.getResultList().size();
+
+        typedQuery.setFirstResult((int) page.getOffset());
+        typedQuery.setMaxResults(page.getPageSize());
         List<ProductEntity> productEntities = typedQuery.getResultList();
         List<Product> products = productEntities.stream().map(e -> modelMapper.map(e, Product.class)).toList();
 
-        return new PageImpl<>(products, page, products.size());
+        return new PageImpl<>(products, page, totalResults);
     }
 
     @Override

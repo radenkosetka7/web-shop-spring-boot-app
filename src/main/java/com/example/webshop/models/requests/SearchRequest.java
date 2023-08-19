@@ -9,6 +9,7 @@ import java.util.List;
 public class SearchRequest {
 
     private String categoryName;
+    private String title;
     private String location;
     private Boolean productStatus;
     private Integer priceFrom;
