@@ -11,10 +11,10 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<UserEntity,Integer> {
 
-    @Query("select p from ProductEntity p where p.userBuyer.id=:id and p.finished=1")
+    @Query("select p from ProductEntity p where p.userBuyer.id=:id and p.finished=1 ORDER BY p.creationDate DESC")
     Page<ProductEntity> getAllProductsForBuyer(Pageable page,Integer id);
 
-    @Query("select p from ProductEntity p where p.userSeller.id=:id and p.finished=:finished")
+    @Query("select p from ProductEntity p where p.userSeller.id=:id and p.finished=:finished ORDER BY p.creationDate DESC")
     Page<ProductEntity> getAllProductsForSeller(Pageable page,Integer id,Integer finished);
 
    boolean existsByMail(String mail);
