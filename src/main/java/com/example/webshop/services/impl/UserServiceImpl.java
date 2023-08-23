@@ -19,6 +19,8 @@ import com.example.webshop.services.AuthService;
 import com.example.webshop.services.LoggerService;
 import com.example.webshop.services.UserService;
 import com.example.webshop.util.Util;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +36,7 @@ import javax.annotation.PostConstruct;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -67,6 +70,11 @@ public class UserServiceImpl implements UserService {
     private String defaultLastNameSupport;
     @Value("${authorization.default.password-support:}")
     private String defaultPasswordSupport;
+
+    @Value("${authorization.token.expiration-time}")
+    private String tokenExpirationTime;
+    @Value("${authorization.token.secret}")
+    private String tokenSecret;
 
     @Value("${avatarDir:}")
     private String dir;
@@ -160,10 +168,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User activateAccount(String username) {
+    public LoginResponse activateAccount(String username) {
         UserEntity userEntity = userRepository.findByUsernameAndStatus(username, UserEntity.Status.REQUESTED).orElseThrow(NotFoundException::new);
         userEntity.setStatus(UserEntity.Status.ACTIVE);
         loggerService.saveLog("User: " + userEntity.getUsername() + " has activated profile.", this.getClass().getName());
-        return modelMapper.map(userRepository.saveAndFlush(userEntity), User.class);
+        userEntity=userRepository.saveAndFlush(userEntity);
+        LoginResponse response= modelMapper.map(userEntity, LoginResponse.class);
+        response.setToken(generateJwt(userEntity));
+        loggerService.saveLog("User " + userEntity.getUsername() + " has logged in to the system", this.getClass().getName());
+        return response;
+    }
+
+
+    private String generateJwt(UserEntity user) {
+        return Jwts.builder()
+                .setId(user.getId().toString())
+                .setSubject(user.getUsername())
+                .claim("status", user.getStatus().name())
+                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(tokenExpirationTime)))
+                .signWith(SignatureAlgorithm.HS512, tokenSecret)
+                .compact();
     }
 }

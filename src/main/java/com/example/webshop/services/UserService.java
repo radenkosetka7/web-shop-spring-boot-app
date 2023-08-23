@@ -30,5 +30,5 @@ public interface UserService {
 
     void signUp(SignUpRequest request);
 
-    User activateAccount(String username);
+    LoginResponse activateAccount(String username);
 }
