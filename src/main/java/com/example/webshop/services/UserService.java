@@ -26,7 +26,6 @@ public interface UserService {
 
     User changePassword(Integer id, ChangePasswordRequest changePasswordRequest);
 
-    LoginResponse findById(Integer id, Class<LoginResponse> response) throws NotFoundException;
 
     void signUp(SignUpRequest request);
 

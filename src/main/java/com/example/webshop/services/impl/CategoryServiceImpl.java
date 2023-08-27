@@ -37,7 +37,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDTO> getAll() {
-        loggerService.saveLog("Get all categories", this.getClass().getName());
         return categoryRepository.findAll().stream().map(c -> modelMapper.map(c, CategoryDTO.class)).collect(Collectors.toList());
     }
 
